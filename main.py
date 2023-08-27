@@ -72,12 +72,15 @@ def yield_data(chunk: int = 100) -> Generator[deserialized_json, None, None]:
             with archive.open(sample) as jsondata:
                 yield jsondata.read()
 
-def decoder(data: list[deserialized_json], json_backend: BaseJsonBackend):
-    for jsondata in data:
-        de_jsoned = json_backend.loads(jsondata)
-        # tmp.write(
-        #     json_backend.dumps(de_jsoned)
-        # )
+def decoder(data: deserialized_json, json_backend: BaseJsonBackend) -> None:
+    de_jsoned = json_backend.loads(data)
+
+def main() -> None:
+    # json_backend = BuiltinJsonBackend() # 1000 files - 136 secs
+    json_backend = OrjsonBackend() # 1000 files - 130 secs
+    for data in get_data():
+        decoder(data, json_backend)
+
 
 SUPPORTED_BACKENDS = {
     'builtin': BuiltinJsonBackend,
@@ -85,9 +88,5 @@ SUPPORTED_BACKENDS = {
 }
 
 if __name__ == '__main__':
-    # json_backend = BuiltinJsonBackend() # 1000 files - 136 secs
-    data = get_data()
-    json_backend = OrjsonBackend() # 1000 files - 130 secs
     # func(json_backend)
-    print(timeit.timeit(lambda: decoder(data, json_backend), number=1))
-    # func()
+    print(timeit.timeit(main, number=1))
