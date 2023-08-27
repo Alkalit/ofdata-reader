@@ -9,11 +9,12 @@ import json
 import orjson
 import timeit
 # from line_profiler import profile
-from typing import Any, Type
+from typing import Any, Type, Generator
 from memory_profiler import profile
 from abc import ABC
 
 samples = ['00001', '00002', '00003', '00004']
+deserialized_json = Any
 
 
 class BaseJsonBackend(ABC):
@@ -57,17 +58,26 @@ class OrjsonBackend(BaseJsonBackend):
             **options,
         ).decode('utf-8')
 
-# @profile
-def func(json_backend: BaseJsonBackend):
+def get_data(chunk: int = 100) -> list[deserialized_json]:
+    result = []
     with zipfile.ZipFile('egrul.json.zip') as archive:
-        # for sample in samples:
-        for sample in archive.namelist()[:100]:
+        for sample in archive.namelist()[:chunk]:
             with archive.open(sample) as jsondata:
-            # with open(f'{sample}.indent.json', 'w', encoding='utf8') as tmp:
-                de_jsoned = json_backend.loads(jsondata.read())
-                # tmp.write(
-                #     json_backend.dumps(de_jsoned)
-                # )
+                result.append(jsondata.read())
+    return result
+
+def yield_data(chunk: int = 100) -> Generator[deserialized_json, None, None]:
+    with zipfile.ZipFile('egrul.json.zip') as archive:
+        for sample in archive.namelist()[:chunk]:
+            with archive.open(sample) as jsondata:
+                yield jsondata.read()
+
+def decoder(data: list[deserialized_json], json_backend: BaseJsonBackend):
+    for jsondata in data:
+        de_jsoned = json_backend.loads(jsondata)
+        # tmp.write(
+        #     json_backend.dumps(de_jsoned)
+        # )
 
 SUPPORTED_BACKENDS = {
     'builtin': BuiltinJsonBackend,
@@ -75,8 +85,9 @@ SUPPORTED_BACKENDS = {
 }
 
 if __name__ == '__main__':
-    json_backend = BuiltinJsonBackend() # 1000 files - 136 secs
-    # json_backend = OrjsonBackend() # 1000 files - 130 secs
+    # json_backend = BuiltinJsonBackend() # 1000 files - 136 secs
+    data = get_data()
+    json_backend = OrjsonBackend() # 1000 files - 130 secs
     # func(json_backend)
-    print(timeit.timeit(lambda: func(json_backend), number=1))
+    print(timeit.timeit(lambda: decoder(data, json_backend), number=1))
     # func()
