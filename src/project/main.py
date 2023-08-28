@@ -1,4 +1,5 @@
 import requests
+import argparse
 import zipfile
 import json
 import timeit
@@ -27,7 +28,7 @@ def yield_data(chunk: int = 100) -> Generator[str, None, None]:
                 yield jsondata.read()
 
 
-def main() -> None:
+def do_service() -> None:
     with Pool(processes=4) as pool:
         fs: list[AsyncResult] = []
         for json_data in yield_data():
@@ -36,6 +37,18 @@ def main() -> None:
 
         for result in fs:
             result.wait()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        "rostelekom downloader",
+        description="Downloads sample dataset of russian legal entities from ofdata.ru"
+    )
+    parser.add_argument("--file", metavar="-f", nargs="?",
+                        help="Process data from the specified file rather than downloading it")
+    args = parser.parse_args()
+
+    # do_service()
 
 
 if __name__ == '__main__':
