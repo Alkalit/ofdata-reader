@@ -13,7 +13,7 @@ serialized_json = Any
 # from CPU-bound
 def get_data(chunk: int = 100) -> list[serialized_json]:
     result = []
-    with zipfile.ZipFile('../../egrul.json.zip') as archive:
+    with zipfile.ZipFile('egrul.json.zip') as archive:
         for sample in archive.namelist()[:chunk]:
             with archive.open(sample) as jsondata:
                 result.append(jsondata.read())
@@ -21,7 +21,7 @@ def get_data(chunk: int = 100) -> list[serialized_json]:
 
 
 def yield_data(chunk: int = 100) -> Generator[str, None, None]:
-    with zipfile.ZipFile('../../egrul.json.zip') as archive:
+    with zipfile.ZipFile('egrul.json.zip') as archive:
         for sample in archive.namelist()[:chunk]:
             with archive.open(sample) as jsondata:
                 yield jsondata.read()
@@ -30,7 +30,7 @@ def yield_data(chunk: int = 100) -> Generator[str, None, None]:
 def main() -> None:
     with Pool(processes=4) as pool:
         fs: list[AsyncResult] = []
-        for json_data in yield_data(1000):
+        for json_data in yield_data():
             future = pool.apply_async(json.loads, json_data)
             fs.append(future)
 
