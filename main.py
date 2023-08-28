@@ -88,22 +88,21 @@ def main() -> None:
                 with archive.open(sample) as json_data:
                     data = json_data.read()
                     # print(f'Enqueuing file {sample}, size {len(data) / 1024 / 1024} Mb')
-                    future = pool.apply_async(json.loads, data)
-                    # future = pool.apply_async(orjson.loads, data)
+                    # future = pool.apply_async(json.loads, data)
+                    future = pool.apply_async(orjson.loads, data)
                     fs.append(future)
 
         for result in fs:
             result.wait()
 
 def main_futures() -> None:
-    with ProcessPoolExecutor(max_workers=1) as pool:
+    with ProcessPoolExecutor(max_workers=4) as pool:
         fs: list[Future] = []
         # json_backend = BuiltinJsonBackend()
         json_backend = OrjsonBackend()
         with zipfile.ZipFile('egrul.json.zip') as archive:
             for sample in archive.namelist()[:1000]:
                 with archive.open(sample) as json_data:
-                    data = json_data.read()
                     # print(f'Enqueuing file {sample}, size {len(data) / 1024 / 1024} Mb')
                     # future = pool.submit(decoder, json_data.read(), json_backend)
                     # future = pool.submit(json.loads, json_data.read())
@@ -119,5 +118,5 @@ SUPPORTED_BACKENDS = {
 }
 
 if __name__ == '__main__':
-    # print(timeit.timeit(lambda: main(), number=1))
-    print(timeit.timeit(main_futures, number=1))
+    print(timeit.timeit(main, number=1))
+    # print(timeit.timeit(main_futures, number=1))
