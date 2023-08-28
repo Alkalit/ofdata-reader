@@ -2,6 +2,7 @@ import json
 import zipfile
 from multiprocessing.pool import Pool, AsyncResult
 from typing import Any, Generator
+import requests
 
 serialized_json = Any
 Filepath = str
@@ -26,8 +27,13 @@ def yield_data(filepath: Filepath, chunk: int = 100) -> Generator[str, None, Non
 
 
 def download_file() -> str:
-    # resp = requests.get("https://ofdata.ru/open-data/download/egrul.json.zip")
-    return '/root'
+    filename = 'egrul.json.zip'
+    response = requests.get("https://ofdata.ru/open-data/download/egrul.json.zip", stream=True)
+    chunk_size = 1024 * 1024  # 1 mb
+    with open(filename) as file:
+        for chunk in response.iter_content(chunk_size=chunk_size):
+            file.write(chunk)
+    return filename
 
 
 def do_service(filepath: Filepath | None = None) -> None:
