@@ -3,7 +3,7 @@ import zipfile
 import json
 import orjson
 import timeit
-from concurrent.futures import ProcessPoolExecutor, Future, wait
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, Future, wait
 from typing import Any, Generator
 from abc import ABC
 
@@ -72,13 +72,13 @@ def main() -> None:
     with ProcessPoolExecutor(max_workers=4) as pool:
         fs: list[Future] = []
         with zipfile.ZipFile('egrul.json.zip') as archive:
-            for sample in archive.namelist()[:100]:
+            for sample in archive.namelist()[:1000]:
                 with archive.open(sample) as json_data:
-                    future = pool.submit(orjson.loads, json_data.read())
+                    future = pool.submit(json.loads, json_data.read())
                     fs.append(future)
 
         wait(fs)
 
 
 if __name__ == '__main__':
-    print(timeit.timeit(lambda: main(), number=1))
+    print(timeit.timeit(main, number=1))
