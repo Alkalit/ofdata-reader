@@ -3,7 +3,7 @@ import zipfile
 import json
 import orjson
 import timeit
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, Future, wait
+from multiprocessing.pool import Pool, AsyncResult
 from typing import Any, Generator
 from abc import ABC
 
@@ -69,15 +69,14 @@ def yield_data(chunk: int = 100) -> Generator[str, None, None]:
 
 
 def main() -> None:
-    with ProcessPoolExecutor(max_workers=4) as pool:
-        fs: list[Future] = []
-        with zipfile.ZipFile('egrul.json.zip') as archive:
-            for sample in archive.namelist()[:1000]:
-                with archive.open(sample) as json_data:
-                    future = pool.submit(json.loads, json_data.read())
-                    fs.append(future)
+    with Pool(processes=4) as pool:
+        fs: list[AsyncResult] = []
+        for json_data in yield_data(1000):
+            future = pool.apply_async(orjson.loads, json_data)
+            fs.append(future)
 
-        wait(fs)
+        for result in fs:
+            result.wait()
 
 
 if __name__ == '__main__':
