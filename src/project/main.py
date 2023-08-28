@@ -52,9 +52,10 @@ class OrjsonBackend(BaseJsonBackend):
         ).decode('utf-8')
 
 
+# Is used for performance testing
 def get_data(chunk: int = 100) -> list[serialized_json]:
     result = []
-    with zipfile.ZipFile('egrul.json.zip') as archive:
+    with zipfile.ZipFile('../../egrul.json.zip') as archive:
         for sample in archive.namelist()[:chunk]:
             with archive.open(sample) as jsondata:
                 result.append(jsondata.read())
@@ -62,7 +63,7 @@ def get_data(chunk: int = 100) -> list[serialized_json]:
 
 
 def yield_data(chunk: int = 100) -> Generator[str, None, None]:
-    with zipfile.ZipFile('egrul.json.zip') as archive:
+    with zipfile.ZipFile('../../egrul.json.zip') as archive:
         for sample in archive.namelist()[:chunk]:
             with archive.open(sample) as jsondata:
                 yield jsondata.read()
