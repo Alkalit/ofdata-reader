@@ -57,8 +57,9 @@ def do_service(connection: Connection, filepath: Filepath | None = None) -> None
 
             cursor = connection.cursor()
             # No need for executemany since there is just a few entries that satisfy criteria
+            # Care for the "replace" clause - it may lead to data losses; https://stackoverflow.com/a/4253806
             cursor.execute(
-                """INSERT INTO entity(name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira) VALUES 
+                """INSERT OR REPLACE INTO entity(name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira) VALUES 
                     (? , ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira)
