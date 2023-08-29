@@ -19,9 +19,6 @@ def do_service(filepath: Filepath | None = None) -> None:
     for json_data in yield_data(filepath=downloaded_file_path, chunk=1000):
         data: list[Entry] = json.loads(json_data)
         for entry in data:
-            kodokved: str | None = None
-            adresrf: Adresrf | None = None
-
             name: str = entry["name"]
             inn: str | None = entry["inn"]
             kpp: str | None = entry["kpp"]
@@ -39,7 +36,7 @@ def do_service(filepath: Filepath | None = None) -> None:
             if gorod is None:
                 continue
 
-            naimgorod = gorod.get("НаимГород")
+            naimgorod: str | None = gorod.get("НаимГород")
             if (naimgorod is None) or (naimgorod != CITY_NAME):
                 continue
 
@@ -50,7 +47,7 @@ def do_service(filepath: Filepath | None = None) -> None:
             if not svokvedosn:
                 continue
 
-            kodokved: str = svokvedosn.get("КодОКВЭД")
+            kodokved: str | None = svokvedosn.get("КодОКВЭД")
             if not kodokved.startswith(OKVED_PREFIX):
                 continue
 
