@@ -6,6 +6,7 @@ from src.project.domain.models import Entry, Svokved, Svadresul, Adresrf, Svokve
 
 
 KHABAROVSK_KRAI = "27"
+OKVED_PREFIX = "62."
 
 
 def do_service(filepath: Filepath | None = None) -> None:
@@ -14,28 +15,28 @@ def do_service(filepath: Filepath | None = None) -> None:
     else:
         downloaded_file_path = filepath
 
-        for json_data in yield_data(filepath=downloaded_file_path, chunk=10):
-            data: list[Entry] = json.loads(json_data)
-            for entry in data:
-                kodokved: str | None = None
-                adresrf: Adresrf | None = None
+    for json_data in yield_data(filepath=downloaded_file_path, chunk=10):
+        data: list[Entry] = json.loads(json_data)
+        for entry in data:
+            kodokved: str | None = None
+            adresrf: Adresrf | None = None
 
-                name: str = entry["name"]
-                inn: str | None = entry["data"].get("ИНН")
-                kpp: str | None = entry["data"].get("КПП")
-                svokved: Svokved | None = entry["data"].get("СвОКВЭД")
-                svadresul: Svadresul | None = entry["data"].get("СвАдресЮЛ")
+            name: str = entry["name"]
+            inn: str | None = entry["data"].get("ИНН")
+            kpp: str | None = entry["data"].get("КПП")
+            svokved: Svokved | None = entry["data"].get("СвОКВЭД")
+            svadresul: Svadresul | None = entry["data"].get("СвАдресЮЛ")
 
-                if not svadresul:
+            if not svadresul:
+                continue
+            else:
+                adresrf: Adresrf | None = svadresul.get("АдресРФ")
+                if not adresrf or (adresrf["КодРегион"] != KHABAROVSK_KRAI):
                     continue
-                else:
-                    adresrf: Adresrf | None = svadresul.get("АдресРФ")
-                    if not adresrf or (adresrf["КодРегион"] != KHABAROVSK_KRAI):
-                        continue
 
-                if svokved:
-                    svokvedosn: Svokvedosn | None = svokved.get("СвОКВЭДОсн")
-                    if svokvedosn:
-                        kodokved: str = svokvedosn.get("КодОКВЭД")
+            if svokved:
+                svokvedosn: Svokvedosn | None = svokved.get("СвОКВЭДОсн")
+                if svokvedosn:
+                    kodokved: str = svokvedosn.get("КодОКВЭД")
 
-                print(name, inn, kpp, kodokved, adresrf)
+            print(name, inn, kpp, kodokved, adresrf)

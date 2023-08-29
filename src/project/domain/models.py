@@ -1,4 +1,4 @@
-from typing import TypedDict, Any
+from typing import TypedDict
 
 Numeric = str
 Date = str
@@ -19,7 +19,7 @@ class Gorod(TypedDict):
     НаимГород: str
 
 
-class Uliza(TypedDict):
+class Ulitza(TypedDict):
     ТипУлица: str
     НаимУлица: str
 
@@ -39,7 +39,7 @@ class Adresrf(TypedDict):
     Район: Rayon | None
     Город: Gorod | None
     НаселПункт: NaselPunkt | None
-    Улица: Uliza | None
+    Улица: Ulitza | None
 
 
 class Svadresul(TypedDict):
