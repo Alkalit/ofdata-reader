@@ -16,7 +16,7 @@ def do_service(filepath: Filepath | None = None) -> None:
     else:
         downloaded_file_path = filepath
 
-    for json_data in yield_data(filepath=downloaded_file_path, chunk=1000):
+    for json_data in yield_data(filepath=downloaded_file_path, chunk=100000):
         data: list[Entry] = json.loads(json_data)
         for entry in data:
             name: str = entry["name"]
@@ -51,4 +51,7 @@ def do_service(filepath: Filepath | None = None) -> None:
             if not kodokved.startswith(OKVED_PREFIX):
                 continue
 
-            print(name, inn, kpp, kodokved, adresrf)
+            dom, ulitza, kvartira, korpus = adresrf.get("Дом"), adresrf["Улица"]["НаимУлица"], adresrf.get(
+                "Кварт"), adresrf.get("Корпус")
+
+            print(name, inn, kpp, kodokved, ulitza, dom, kvartira)
