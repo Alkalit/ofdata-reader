@@ -16,7 +16,11 @@ def get_data(chunk: int = 100) -> list[serialized_json]:
     return result
 
 
+# TODO by default should iterate over all files.
 def yield_data(filepath: Filepath, chunk: int = 100) -> Generator[str, None, None]:
+    """
+    Yields a stream of individual files from archive in filepath
+    """
     with zipfile.ZipFile(filepath) as archive:
         for sample in archive.namelist()[:chunk]:
             with archive.open(sample) as jsondata:
