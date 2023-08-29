@@ -30,27 +30,28 @@ def do_service(filepath: Filepath | None = None) -> None:
 
             if svadresul is None:
                 continue
-            else:
-                adresrf: Adresrf | None = svadresul.get("АдресРФ")
-                if (adresrf is None) or (adresrf["КодРегион"] != KHABAROVSK_KRAI):  # TODO check with str.lower
-                    continue
-                else:
-                    gorod: Gorod = adresrf.get("Город")
-                    if gorod is None:
-                        continue
-                    naimgorod = gorod.get("НаимГород")
-                    if (naimgorod is None) or (naimgorod != CITY_NAME):
-                        continue
+
+            adresrf: Adresrf | None = svadresul.get("АдресРФ")
+            if (adresrf is None) or (adresrf["КодРегион"] != KHABAROVSK_KRAI):  # TODO check with str.lower
+                continue
+
+            gorod: Gorod = adresrf.get("Город")
+            if gorod is None:
+                continue
+
+            naimgorod = gorod.get("НаимГород")
+            if (naimgorod is None) or (naimgorod != CITY_NAME):
+                continue
 
             if not svokved:
                 continue
-            else:
-                svokvedosn: Svokvedosn | None = svokved.get("СвОКВЭДОсн")
-                if not svokvedosn:
-                    continue
-                else:
-                    kodokved: str = svokvedosn.get("КодОКВЭД")
-                    if not kodokved.startswith(OKVED_PREFIX):
-                        continue
+
+            svokvedosn: Svokvedosn | None = svokved.get("СвОКВЭДОсн")
+            if not svokvedosn:
+                continue
+
+            kodokved: str = svokvedosn.get("КодОКВЭД")
+            if not kodokved.startswith(OKVED_PREFIX):
+                continue
 
             print(name, inn, kpp, kodokved, adresrf)
