@@ -14,11 +14,11 @@ def do_service(filepath: Filepath | None = None) -> None:
     else:
         downloaded_file_path = filepath
 
-        for idx, json_data in enumerate(yield_data(filepath=downloaded_file_path, chunk=10)):
+        for json_data in yield_data(filepath=downloaded_file_path, chunk=10):
             data: list[Entry] = json.loads(json_data)
             for entry in data:
                 kodokved: str | None = None
-                adresrf: dict | None = None
+                adresrf: Adresrf | None = None
 
                 name: str = entry["name"]
                 inn: str | None = entry["data"].get("ИНН")
