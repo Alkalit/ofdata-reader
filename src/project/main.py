@@ -24,14 +24,14 @@ def main() -> None:
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS 
             entity(
-            inn integer NOT NULL PRIMARY KEY, 
-            kpp integer NOT NULL,
-            name, 
-            kodokved, 
-            ulitza, 
-            dom, 
-            korpus, 
-            kvartira)
+            inn INTEGER NOT NULL PRIMARY KEY, 
+            kpp INTEGER NOT NULL,
+            name TEXT NOT NULL, 
+            kodokved TEXT NOT NULL, 
+            ulitza TEXT, 
+            dom TEXT, 
+            korpus TEXT, 
+            kvartira TEXT)
             """
     )
 
