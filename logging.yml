@@ -19,7 +19,7 @@ handlers:
     stream: ext://sys.stdout
 root:
   level: DEBUG
-  handlers: [stdout]
+  handlers: [console]
 loggers:
   pyrogram:
     level: WARNING
