@@ -2,6 +2,7 @@ import argparse
 import timeit
 import sqlite3
 
+from project.common.logging import setup_logging
 from src.project.application.services import do_service
 
 
@@ -17,6 +18,7 @@ def configure_argparser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    setup_logging()
     parser = configure_argparser()
     args = parser.parse_args()
     connection = sqlite3.connect("db.sqlite3")
