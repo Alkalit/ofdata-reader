@@ -1,5 +1,8 @@
 import sqlite3
 import logging
+from sqlite3 import Connection
+
+from project.application.services import logger
 
 logger = logging.getLogger(__name__)
 
@@ -26,3 +29,17 @@ def create_table(connection: sqlite3.Connection) -> None:
             """
     )
     logger.debug("Initialized DB scheme.")
+
+
+def save_entity(connection: Connection, *args):
+    cursor = connection.cursor()
+    # No need for executemany since there is just a few entries that satisfy criteria
+    # Care for the "replace" clause - it may lead to data losses; https://stackoverflow.com/a/4253806
+    cursor.execute(
+        """INSERT OR REPLACE INTO entity(name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira) VALUES 
+            (? , ?, ?, ?, ?, ?, ?, ?)
+        """,
+        args
+    )
+    connection.commit()
+    logger.debug("Saved %s into db", args)

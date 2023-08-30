@@ -3,6 +3,7 @@ import orjson as json  # TODO for testing. Rollback later
 import logging
 from sqlite3 import Connection
 
+from project.adapters.db import save_entity
 from src.project.adapters.ofdata import download_file
 from src.project.adapters.zipfile import yield_data, Filepath
 from src.project.domain.models import Entry, Svokved, Svadresul, Adresrf, Svokvedosn, Gorod
@@ -13,20 +14,6 @@ KHABAROVSK_KRAI = "27"
 OKVED_PREFIX = "62."
 CITY_NAME = "ХАБАРОВСК"
 DEFAULT_FILE_NAME = 'egrul.json.zip'
-
-
-def save_entity(connection: Connection, *args):
-    cursor = connection.cursor()
-    # No need for executemany since there is just a few entries that satisfy criteria
-    # Care for the "replace" clause - it may lead to data losses; https://stackoverflow.com/a/4253806
-    cursor.execute(
-        """INSERT OR REPLACE INTO entity(name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira) VALUES 
-            (? , ?, ?, ?, ?, ?, ?, ?)
-        """,
-        args
-    )
-    connection.commit()
-    logger.debug("Saved %s into db", args)
 
 
 # Note: this typehint looks ugly, but it's either Any or refactor to use proper (data)classes to border out
