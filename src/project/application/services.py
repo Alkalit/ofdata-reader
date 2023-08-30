@@ -1,3 +1,4 @@
+import os
 import json
 import orjson as json  # TODO for testing. Rollback later
 from sqlite3 import Connection
@@ -9,11 +10,18 @@ from src.project.domain.models import Entry, Svokved, Svadresul, Adresrf, Svokve
 KHABAROVSK_KRAI = "27"
 OKVED_PREFIX = "62."
 CITY_NAME = "ХАБАРОВСК"
+DEFAULT_FILE_NAME = 'egrul.json.zip'
 
 
 def do_service(connection: Connection, filepath: Filepath | None = None) -> None:
     if not filepath:
-        downloaded_file_path = download_file()
+
+        filename = DEFAULT_FILE_NAME
+        if not os.path.isfile(filename):
+            from_byte = 0
+        else:
+            from_byte = os.path.getsize(filename)
+        downloaded_file_path = download_file(filename, from_byte=from_byte)
     else:
         downloaded_file_path = filepath
 
