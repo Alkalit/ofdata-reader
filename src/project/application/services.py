@@ -93,6 +93,7 @@ def do_service(connection: Connection, filepath: Filepath | None = None) -> None
 
     num_of_files = next(generator)
     with tqdm(total=num_of_files, desc="Processing the archive.") as pgbar:
+        # 2-4 workers is sufficient. I hesitate to propagate it to the program's arguments.
         with Pool(processes=4) as pool:
             for json_data in generator:
                 pool.apply_async(process_entity_json, (json_data, connection))
