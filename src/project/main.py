@@ -19,9 +19,11 @@ def main() -> None:
     create_table(connection)
     logger.info("Successfully initialized application.")
 
-    do_service(connection, filepath=args.file)
-
-    connection.close()
+    try:
+        do_service(connection, filepath=args.file)
+        logger.info("Successfully completed dataset processing.")
+    finally:
+        connection.close()
 
 
 if __name__ == '__main__':
