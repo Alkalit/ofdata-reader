@@ -1,7 +1,7 @@
 import argparse
 
 
-def configure_argparser() -> argparse.ArgumentParser:
+def setup_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         "rostelekom downloader",
         description="Downloads sample dataset of russian legal entities from ofdata.ru"
