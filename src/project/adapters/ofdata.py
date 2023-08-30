@@ -8,7 +8,7 @@ def download_file(filename: str, from_byte=0) -> str:
 
     chunk_size = 1024 * 1024  # 1 mb
     headers = {'Range': 'bytes=%d-' % from_byte}
-    file_mode = "rb" if from_byte == 0 else "ab"
+    file_mode = "wb" if from_byte == 0 else "ab"
 
     response = requests.get(
         "https://ofdata.ru/open-data/download/egrul.json.zip",

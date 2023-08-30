@@ -2,7 +2,6 @@ import sqlite3
 import logging
 from sqlite3 import Connection
 
-from project.application.services import logger
 
 logger = logging.getLogger(__name__)
 
