@@ -5,8 +5,6 @@ from tqdm import tqdm
 logger = logging.getLogger(__name__)
 
 
-# todo init tqdm with from_byte in case file already partly downloaed
-# TODO 'Content-Length': '16896477906' for progress bar
 def download_file(filename: str, from_byte=0) -> str:
     if from_byte < 0:
         raise TypeError(f"Cannot download from {from_byte}'th byte.")
