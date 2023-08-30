@@ -1,11 +1,13 @@
 import os
-import json
 import orjson as json  # TODO for testing. Rollback later
+import logging
 from sqlite3 import Connection
 
 from src.project.adapters.ofdata import download_file
 from src.project.adapters.zipfile import yield_data, Filepath
 from src.project.domain.models import Entry, Svokved, Svadresul, Adresrf, Svokvedosn, Gorod
+
+logger = logging.getLogger(__name__)
 
 KHABAROVSK_KRAI = "27"
 OKVED_PREFIX = "62."
@@ -13,64 +15,89 @@ CITY_NAME = "ХАБАРОВСК"
 DEFAULT_FILE_NAME = 'egrul.json.zip'
 
 
+def save_entity(connection: Connection, *args):
+    cursor = connection.cursor()
+    # No need for executemany since there is just a few entries that satisfy criteria
+    # Care for the "replace" clause - it may lead to data losses; https://stackoverflow.com/a/4253806
+    cursor.execute(
+        """INSERT OR REPLACE INTO entity(name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira) VALUES 
+            (? , ?, ?, ?, ?, ?, ?, ?)
+        """,
+        args
+    )
+    connection.commit()
+    logger.debug("Saved %s into db", args)
+
+
+# Note: this typehint looks ugly, but it's either Any or refactor to use proper (data)classes to border out
+# domain entities
+def filter_out(entry: Entry) -> \
+        tuple[
+            str, str, str, str | None, str, str | None, str | None, str | None] | None:  # You're one ugly motherfucker
+    name = entry["name"]
+    inn = entry["inn"]
+    kpp = entry["kpp"]
+    svadresul: Svadresul | None = entry["data"].get("СвАдресЮЛ")
+    svokved: Svokved | None = entry["data"].get("СвОКВЭД")
+
+    if svadresul is None:
+        return
+
+    adresrf: Adresrf | None = svadresul.get("АдресРФ")
+    if (adresrf is None) or (adresrf["КодРегион"] != KHABAROVSK_KRAI):  # TODO check with str.lower
+        return
+
+    gorod: Gorod = adresrf.get("Город")
+    if gorod is None:
+        return
+
+    naimgorod: str | None = gorod.get("НаимГород")
+    if (naimgorod is None) or (naimgorod != CITY_NAME):
+        return
+
+    if not svokved:
+        return
+
+    svokvedosn: Svokvedosn | None = svokved.get("СвОКВЭДОсн")
+    if not svokvedosn:
+        return
+
+    kodokved: str | None = svokvedosn.get("КодОКВЭД")
+    if not kodokved.startswith(OKVED_PREFIX):
+        return
+
+    dom, ulitza, kvartira, korpus = adresrf.get("Дом"), adresrf["Улица"]["НаимУлица"], adresrf.get(
+        "Кварт"), adresrf.get("Корпус")
+
+    return name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira
+
+
+def process_entity_json(json_data: str, connection: Connection):
+    data: list[Entry] = json.loads(json_data)
+
+    for entry in data:
+        result = filter_out(entry)
+
+        if result is None:
+            continue
+
+        save_entity(connection, *result)
+
+
 def do_service(connection: Connection, filepath: Filepath | None = None) -> None:
     if not filepath:
-
         filename = DEFAULT_FILE_NAME
         if not os.path.isfile(filename):
             from_byte = 0
+            logger.info("No dataset file found. Downloading from the start")
         else:
             from_byte = os.path.getsize(filename)
+            logger.info("A dataset file is found. Downloading from %s byte", from_byte)
         downloaded_file_path = download_file(filename, from_byte=from_byte)
     else:
         downloaded_file_path = filepath
+        logger.info("Dataset file is specified. Skipping downloading")
 
+    logger.debug("Got file: %s", downloaded_file_path)
     for json_data in yield_data(filepath=downloaded_file_path, chunk=500):
-        data: list[Entry] = json.loads(json_data)
-        for entry in data:
-            name: str = entry["name"]
-            inn: str | None = entry["inn"]
-            kpp: str | None = entry["kpp"]
-            svadresul: Svadresul | None = entry["data"].get("СвАдресЮЛ")
-            svokved: Svokved | None = entry["data"].get("СвОКВЭД")
-
-            if svadresul is None:
-                continue
-
-            adresrf: Adresrf | None = svadresul.get("АдресРФ")
-            if (adresrf is None) or (adresrf["КодРегион"] != KHABAROVSK_KRAI):  # TODO check with str.lower
-                continue
-
-            gorod: Gorod = adresrf.get("Город")
-            if gorod is None:
-                continue
-
-            naimgorod: str | None = gorod.get("НаимГород")
-            if (naimgorod is None) or (naimgorod != CITY_NAME):
-                continue
-
-            if not svokved:
-                continue
-
-            svokvedosn: Svokvedosn | None = svokved.get("СвОКВЭДОсн")
-            if not svokvedosn:
-                continue
-
-            kodokved: str | None = svokvedosn.get("КодОКВЭД")
-            if not kodokved.startswith(OKVED_PREFIX):
-                continue
-
-            dom, ulitza, kvartira, korpus = adresrf.get("Дом"), adresrf["Улица"]["НаимУлица"], adresrf.get(
-                "Кварт"), adresrf.get("Корпус")
-
-            cursor = connection.cursor()
-            # No need for executemany since there is just a few entries that satisfy criteria
-            # Care for the "replace" clause - it may lead to data losses; https://stackoverflow.com/a/4253806
-            cursor.execute(
-                """INSERT OR REPLACE INTO entity(name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira) VALUES 
-                    (? , ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira)
-            )
-            connection.commit()
-            # print(name, inn, kpp, kodokved, ulitza, korpus, dom, kvartira)
+        process_entity_json(json_data, connection)
