@@ -22,6 +22,8 @@ def yield_data(filepath: Filepath, chunk: int = 100) -> Generator[str, None, Non
     Yields a stream of individual files from archive in filepath
     """
     with zipfile.ZipFile(filepath) as archive:
-        for sample in archive.namelist()[:chunk]:
+        num_of_files = archive.namelist()[:chunk]
+        yield len(num_of_files)
+        for sample in num_of_files:
             with archive.open(sample) as jsondata:
                 yield jsondata.read()
