@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_connection() -> sqlite3.Connection:
-    connection = sqlite3.connect("../../../db.sqlite3")
+    connection = sqlite3.connect("db.sqlite3")
     logger.debug("Created a new connection to db.sqlite3")
     return connection
 
