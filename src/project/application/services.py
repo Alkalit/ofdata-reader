@@ -3,6 +3,7 @@ import orjson as json
 import logging
 from sqlite3 import Connection
 from tqdm import tqdm
+from multiprocessing.pool import Pool, AsyncResult
 
 from project.adapters.db import save_entity
 from src.project.adapters.ofdata import download_file
@@ -87,10 +88,17 @@ def do_service(connection: Connection, filepath: Filepath | None = None) -> None
         logger.info("Dataset file is specified. Skipping downloading")
 
     logger.debug("Got file: %s", downloaded_file_path)
-    generator = yield_data(filepath=downloaded_file_path, chunk=500)
+    generator = yield_data(filepath=downloaded_file_path, chunk=100000)
+    fs: list[AsyncResult] = []
 
     num_of_files = next(generator)
     with tqdm(total=num_of_files, desc="Processing the archive.") as pgbar:
-        for json_data in generator:
-            process_entity_json(json_data, connection)
-            pgbar.update()
+        with Pool(processes=4) as pool:
+            for json_data in generator:
+                pool.apply_async(process_entity_json, (json_data, connection))
+                pgbar.update()
+
+            # Note: we could possibly add here another one progressbar
+            # But that's redundant atm. IO is the main bottleneck.
+            for future in fs:
+                future.wait()
