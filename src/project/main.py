@@ -1,5 +1,6 @@
 import argparse
 import timeit
+import sqlite3
 
 from src.project.application.services import do_service
 
@@ -18,8 +19,25 @@ def configure_argparser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = configure_argparser()
     args = parser.parse_args()
+    connection = sqlite3.connect("db.sqlite3")
+    cursor = connection.cursor()
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS 
+            entity(
+            inn INTEGER NOT NULL PRIMARY KEY, 
+            kpp INTEGER NOT NULL,
+            name TEXT NOT NULL, 
+            kodokved TEXT NOT NULL, 
+            ulitza TEXT, 
+            dom TEXT, 
+            korpus TEXT, 
+            kvartira TEXT)
+            """
+    )
 
-    do_service(filepath=args.file)
+    do_service(connection, filepath=args.file)
+
+    connection.close()
 
 
 if __name__ == '__main__':
