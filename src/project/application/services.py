@@ -6,9 +6,9 @@ from tqdm import tqdm
 from multiprocessing.pool import Pool, AsyncResult
 
 from project.adapters.db import save_entity
-from src.project.adapters.ofdata import download_file
-from src.project.adapters.zipfile import yield_data, Filepath
-from src.project.domain.models import Entry, Svokved, Svadresul, Adresrf, Svokvedosn, Gorod
+from project.adapters.ofdata import download_file
+from project.adapters.zipfile import yield_data, Filepath
+from project.domain.models import Entry, Svokved, Svadresul, Adresrf, Svokvedosn, Gorod
 
 logger = logging.getLogger(__name__)
 
