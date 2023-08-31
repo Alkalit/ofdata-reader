@@ -78,6 +78,7 @@ def do_service(
         filepath: Filepath | None = None,
         nfiles: int | None = None,
 ) -> None:
+
     if not filepath:
         filename = DEFAULT_FILE_NAME
         if not os.path.isfile(filename):

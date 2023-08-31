@@ -2,13 +2,12 @@ import sqlite3
 import logging
 from sqlite3 import Connection
 
-
 logger = logging.getLogger(__name__)
 
 
-def get_connection() -> sqlite3.Connection:
-    connection = sqlite3.connect("db.sqlite3")
-    logger.debug("Created a new connection to db.sqlite3")
+def get_connection(dbname: str) -> sqlite3.Connection:
+    connection = sqlite3.connect(dbname)
+    logger.debug("Created a new connection to %s DB", dbname)
     return connection
 
 
