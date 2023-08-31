@@ -6,7 +6,7 @@ from tqdm import tqdm
 from multiprocessing.pool import Pool, AsyncResult
 
 from project.adapters.db import save_entity
-from project.adapters.ofdata import download_file
+from project.adapters.ofdata import OfdataGateway
 from project.adapters.zipfile import yield_data, Filepath
 from project.domain.models import Entry, Svokved, Svadresul, Adresrf, Svokvedosn, Gorod
 
@@ -81,13 +81,15 @@ def do_service(
 
     if not filepath:
         filename = DEFAULT_FILE_NAME
+        ofdata_client = OfdataGateway()
         if not os.path.isfile(filename):
             from_byte = 0
             logger.info("No dataset file found. Downloading from the start")
         else:
             from_byte = os.path.getsize(filename)
             logger.info("A dataset file is found. Downloading from %s byte", from_byte)
-        downloaded_file_path = download_file(filename, from_byte=from_byte)
+
+        downloaded_file_path = ofdata_client.download_file(filename, from_byte=from_byte)
     else:
         downloaded_file_path = filepath
         logger.info("Dataset file is specified. Skipping downloading")
