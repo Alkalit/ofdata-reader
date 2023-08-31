@@ -1,12 +1,12 @@
 import zipfile
 from typing import Generator, Any
 
-# Is used for performance testing to separated IO operations
-# from CPU-bound
 serialized_json = Any
 Filepath = str
 
 
+# Is used for performance testing to separated IO operations
+# from CPU-bound
 def get_data(chunk: int = 100) -> list[serialized_json]:
     result = []
     with zipfile.ZipFile('egrul.json.zip') as archive:
@@ -16,7 +16,6 @@ def get_data(chunk: int = 100) -> list[serialized_json]:
     return result
 
 
-# TODO by default should iterate over all files.
 def yield_data(filepath: Filepath, chunk: int | None = None) -> Generator[str, None, None]:
     """
     Yields a stream of individual files from archive in filepath
