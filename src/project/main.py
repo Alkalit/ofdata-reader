@@ -22,7 +22,7 @@ def main() -> None:
     logger.info("Successfully initialized application.")
 
     try:
-        do_service(connection, filepath=args.file)
+        do_service(connection, filepath=args.file, nfiles=args.nfiles)
         logger.info("Successfully completed dataset processing.")
     finally:
         connection.close()

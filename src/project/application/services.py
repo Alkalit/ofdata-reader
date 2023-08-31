@@ -73,7 +73,11 @@ def process_entity_json(json_data: str, connection: Connection):
         save_entity(connection, *result)
 
 
-def do_service(connection: Connection, filepath: Filepath | None = None) -> None:
+def do_service(
+        connection: Connection,
+        filepath: Filepath | None = None,
+        nfiles: int | None = None,
+) -> None:
     if not filepath:
         filename = DEFAULT_FILE_NAME
         if not os.path.isfile(filename):
@@ -88,7 +92,7 @@ def do_service(connection: Connection, filepath: Filepath | None = None) -> None
         logger.info("Dataset file is specified. Skipping downloading")
 
     logger.debug("Got file: %s", downloaded_file_path)
-    generator = yield_data(filepath=downloaded_file_path, chunk=100000)
+    generator = yield_data(filepath=downloaded_file_path, chunk=nfiles)
     fs: list[AsyncResult] = []
 
     num_of_files = next(generator)
