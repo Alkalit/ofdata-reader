@@ -8,5 +8,7 @@
 `git clone  https://github.com/Alkalit/ofdata-reader.git`
 
 В директории проекта:
+
 `pip install -e .`
+
 `python src/project/main.py`
