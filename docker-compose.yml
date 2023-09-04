@@ -21,4 +21,6 @@ services:
     entrypoint:
       - python
       - project/main.py
-      # - --dbname=einebiene.sqlite  # An example on how to pass CL arguments.
+      # - --file=_egrul.json.zip  # An example on how to pass CLI arguments.
+      # - -n=1000
+      # - --dbname=einebiene.sqlite
