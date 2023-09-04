@@ -27,6 +27,7 @@ class OfdataGateway:
 
         logger.info("Initiated file downloading.")
         with tqdm(
+                desc="Downloading the archive",
                 initial=from_byte,
                 total=file_size,
                 unit_scale=True,

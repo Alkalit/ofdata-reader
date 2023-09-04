@@ -15,5 +15,10 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
     volumes:
-      - ./src:/src
+      - ./src/:/src/
       - ./db/:/db/
+      - ./configs/:/configs/
+    entrypoint:
+      - python
+      - project/main.py
+      # - --dbname=einebiene.sqlite  # An example on how to pass CL arguments.

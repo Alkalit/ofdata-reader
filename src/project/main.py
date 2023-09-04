@@ -1,5 +1,6 @@
 import timeit
 import logging
+from pathlib import Path
 
 from project.common.argparser import setup_argparser
 from project.common.logging import setup_logging
@@ -15,7 +16,9 @@ def main() -> None:
     parser = setup_argparser()
     args = parser.parse_args()
 
-    connection = get_connection(dbname=args.dbname)
+    db_root = Path("/db/")
+    db_path = db_root / args.dbname
+    connection = get_connection(dbname=db_path)
     # Not much benefit atm, but may gain speed boost on high concurrent writes.
     connection.execute("PRAGMA journal_mode=WAL")
     create_table(connection)
