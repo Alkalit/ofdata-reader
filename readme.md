@@ -9,6 +9,8 @@
 
 В директории проекта:
 
-`pip install -e .`
+Помощь: `docker-compose run ofdata-reader python project/main.py -h`
 
-`python src/project/main.py`
+Запуск `docker-compose up -d`
+
+База данных сохраняется в директорию db
