@@ -14,6 +14,7 @@
 Запуск: `python src/project/main.py`
 
 Помощь: `python src/project/main.py -h`
+
 Проект тестировался на python 3.10 и 3.11
 
 # Особенности:
