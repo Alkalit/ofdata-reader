@@ -9,6 +9,8 @@
 
 В директории проекта:
 
-`pip install -e .`
+Установк: `pip install -e .`
 
-`python src/project/main.py`
+Запуск: `python src/project/main.py`
+
+Помощь: `python src/project/main.py -h`
