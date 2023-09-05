@@ -18,9 +18,11 @@ services:
       - ./src/:/src/
       - ./db/:/db/
       - ./configs/:/configs/
+    depends_on:
+      - sqlite3
     entrypoint:
       - python
       - project/main.py
-      # - --file=_egrul.json.zip  # An example on how to pass CLI arguments.
-      # - -n=1000
-      # - --dbname=einebiene.sqlite
+#      - --file=egrul.json.zip  # An example on how to pass CLI arguments.
+#      - -n=1000
+#      - --dbname=einebiene.sqlite
