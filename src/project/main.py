@@ -19,13 +19,11 @@ def main() -> None:
     db_root = Path("/db/")
     db_path = db_root / args.dbname
     connection = get_connection(dbname=db_path)
-    # Not much benefit atm, but may gain speed boost on high concurrent writes.
-    connection.execute("PRAGMA journal_mode=WAL")
     create_table(connection)
     logger.info("Successfully initialized application.")
 
     try:
-        do_service(args.dbname, filepath=args.file, nfiles=args.nfiles)
+        do_service(db_path, filepath=args.file, nfiles=args.nfiles)
         logger.info("Successfully completed dataset processing.")
     finally:
         connection.close()
