@@ -1,11 +1,11 @@
 import os
 import orjson as json
 import logging
-from sqlite3 import Connection
 from tqdm import tqdm
 from multiprocessing.pool import Pool, AsyncResult
+from contextlib import closing
 
-from project.adapters.db import save_entity
+from project.adapters.db import save_entity, get_connection
 from project.adapters.ofdata import OfdataGateway
 from project.adapters.zipfile import yield_data, Filepath
 from project.domain.models import Entry, Svokved, Svadresul, Adresrf, Svokvedosn, Gorod
@@ -61,20 +61,20 @@ def filter_out(entry: Entry) -> \
     return name, inn, kpp, kodokved, ulitza, dom, korpus, kvartira
 
 
-def process_entity_json(json_data: str, connection: Connection):
+def process_entity_json(json_data: str, dbname: str):
     data: list[Entry] = json.loads(json_data)
-
     for entry in data:
         result = filter_out(entry)
 
         if result is None:
             continue
 
-        save_entity(connection, *result)
+        with closing(get_connection(dbname)) as connection:
+            save_entity(connection, *result)
 
 
 def do_service(
-        connection: Connection,
+        dbname: str,
         filepath: Filepath | None = None,
         nfiles: int | None = None,
 ) -> None:
@@ -103,7 +103,7 @@ def do_service(
         # 2-4 workers is sufficient. I hesitate to propagate it to the program's arguments.
         with Pool(processes=4) as pool:
             for json_data in generator:
-                pool.apply_async(process_entity_json, (json_data, connection))
+                pool.apply_async(process_entity_json, (json_data, dbname))
                 pgbar.update()
 
             # Note: we could possibly add here another one progressbar
