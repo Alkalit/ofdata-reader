@@ -16,8 +16,6 @@ def main() -> None:
     args = parser.parse_args()
 
     connection = get_connection(dbname=args.dbname)
-    # Not much benefit atm, but may gain speed boost on high concurrent writes.
-    connection.execute("PRAGMA journal_mode=WAL")
     create_table(connection)
     logger.info("Successfully initialized application.")
 

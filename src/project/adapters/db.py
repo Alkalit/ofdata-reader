@@ -7,6 +7,8 @@ logger = logging.getLogger(__name__)
 
 def get_connection(dbname: str) -> sqlite3.Connection:
     connection = sqlite3.connect(dbname)
+    # Not much benefit atm, but may gain speed boost on high concurrent writes.
+    connection.execute("PRAGMA journal_mode=WAL")
     logger.debug("Created a new connection to %s DB", dbname)
     return connection
 
